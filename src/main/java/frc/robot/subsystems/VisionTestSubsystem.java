@@ -10,6 +10,7 @@ import frc.robot.LimelightHelpers.LimelightResults;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class VisionTestSubsystem extends SubsystemBase{
@@ -106,7 +107,7 @@ public class VisionTestSubsystem extends SubsystemBase{
 
     
 
-
+    
     
     @Override
     public void periodic(){ 
@@ -115,23 +116,27 @@ public class VisionTestSubsystem extends SubsystemBase{
         //SmartDashboard.putBoolean("limelight Has Targets", camera.getLatestResult().hasTargets());
         getVisionData();
 
-        getCamAreaDist();
+        getCamTrigDist();
     }
 
 
+//Switching the method over to a more accurate way of finding distance
+    public double getCamTrigDist(){
 
-    public double getCamAreaDist(){
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+        var Ty = table.getEntry("ty");
+        double targetOffsetAngle_Vertical = Ty.getDouble(0.0);
 
-        double KP = .01165; //calculated based on testing num too small-increase value too big-decrease value
+        double angleToTargetRadians = (Constants.VC.CAM_MOUNT_ANGLE + targetOffsetAngle_Vertical) * (3.14159 / 180.0);
+        //double KP = .01165; //calculated based on testing num too small-increase value too big-decrease value
 
         //calculate distance based on actual area and area % gotten by camera
         
-        double distanceArea = Math.sqrt(Constants.VC.APRILTAG_AREA_IN/ (camData.get("Ta") * KP));
+        double distanceToTarget = (Constants.VC.APRILTAG_HEIGHT - Constants.VC.CAM_HEIGHT) / Math.tan(angleToTargetRadians);
 
+        camData.put("distanceToTarget", distanceToTarget);
+        SmartDashboard.putNumber("distanceToTarget", distanceToTarget);
 
-        camData.put("distanceArea", distanceArea);
-        SmartDashboard.putNumber("distArea", distanceArea);
-
-        return distanceArea; 
+        return distanceToTarget; 
     }
 }
