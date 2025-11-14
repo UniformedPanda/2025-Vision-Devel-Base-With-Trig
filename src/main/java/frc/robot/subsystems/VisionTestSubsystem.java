@@ -8,7 +8,7 @@ import java.util.HashMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers.LimelightResults;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -131,8 +131,9 @@ public class VisionTestSubsystem extends SubsystemBase{
         //double KP = .01165; //calculated based on testing num too small-increase value too big-decrease value
 
         //calculate distance based on actual area and area % gotten by camera
-        
-        double distanceToTarget = (Constants.VC.APRILTAG_HEIGHT - Constants.VC.CAM_HEIGHT) / Math.tan(angleToTargetRadians);
+        var aprilTagHeightMeters = Units.inchesToMeters(Constants.VC.APRILTAG_HEIGHT);
+        var camHeight = Units.inchesToMeters(Constants.VC.CAM_HEIGHT);
+        double distanceToTarget = (aprilTagHeightMeters - camHeight) / Math.tan(angleToTargetRadians);
 
         camData.put("distanceToTarget", distanceToTarget);
         SmartDashboard.putNumber("distanceToTarget", distanceToTarget);
